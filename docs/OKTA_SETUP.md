@@ -1,4 +1,4 @@
-# Setting Up OAuth 2.0 Web Server Flow with Okta
+# Setting Up OAuth 2.0 Authorization Code Flow with Okta
 
 This guide walks you through setting up browser-based OAuth authentication for Salesforce MCP Server when your Salesforce org uses Okta for Single Sign-On (SSO).
 
@@ -49,7 +49,7 @@ This guide walks you through setting up browser-based OAuth authentication for S
       "command": "npx",
       "args": ["-y", "@tsmztech/mcp-server-salesforce"],
       "env": {
-        "SALESFORCE_CONNECTION_TYPE": "OAuth_2.0_Web_Server",
+        "SALESFORCE_CONNECTION_TYPE": "OAuth_2.0_Authorization_Code",
         "SALESFORCE_CLIENT_ID": "YOUR_CONSUMER_KEY_HERE",
         "SALESFORCE_CLIENT_SECRET": "YOUR_CONSUMER_SECRET_HERE",
         "SALESFORCE_INSTANCE_URL": "https://your-domain.my.salesforce.com",

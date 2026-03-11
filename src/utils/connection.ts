@@ -2,7 +2,7 @@ import jsforce from 'jsforce';
 import { ConnectionType, ConnectionConfig, SalesforceCLIResponse } from '../types/connection.js';
 import https from 'https';
 import querystring from 'querystring';
-import { exec, spawn } from 'child_process';
+import { exec } from 'child_process';
 import { promisify } from 'util';
 import {
   generateAuthorizationUrl,
@@ -160,17 +160,17 @@ export async function createSalesforceConnection(config?: ConnectionConfig) {
       });
 
       return conn;
-    } else if (connectionType === ConnectionType.OAuth_2_0_Web_Server) {
-      // OAuth 2.0 Web Server Flow (browser-based authentication)
+    } else if (connectionType === ConnectionType.OAuth_2_0_Authorization_Code) {
+      // OAuth 2.0 Authorization Code Flow (browser-based authentication)
       const clientId = process.env.SALESFORCE_CLIENT_ID;
       const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
       const redirectUri = process.env.SALESFORCE_REDIRECT_URI || 'http://localhost:3000/oauth/callback';
 
       if (!clientId || !clientSecret) {
-        throw new Error('SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET are required for OAuth 2.0 Web Server Flow');
+        throw new Error('SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET are required for OAuth 2.0 Authorization Code Flow');
       }
 
-      console.error('Connecting to Salesforce using OAuth 2.0 Web Server Flow');
+      console.error('Connecting to Salesforce using OAuth 2.0 Authorization Code Flow');
 
       // Try to load existing tokens
       let tokens = loadTokens();

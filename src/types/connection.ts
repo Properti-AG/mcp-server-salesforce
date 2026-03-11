@@ -15,11 +15,12 @@ export enum ConnectionType {
   OAuth_2_0_Client_Credentials = 'OAuth_2.0_Client_Credentials',
 
   /**
-   * OAuth 2.0 Web Server Flow with browser-based authentication
+   * OAuth 2.0 Authorization Code Flow with browser-based authentication
    * Requires SALESFORCE_CLIENT_ID, SALESFORCE_CLIENT_SECRET, and SALESFORCE_REDIRECT_URI
    * Supports SSO providers like Okta
+   * Tokens are stored in ~/.mcp-salesforce/oauth-tokens.json
    */
-  OAuth_2_0_Web_Server = 'OAuth_2.0_Web_Server',
+  OAuth_2_0_Authorization_Code = 'OAuth_2.0_Authorization_Code',
 
   /**
    * Salesforce CLI authentication using sf org display command

@@ -170,7 +170,7 @@ You can connect to Salesforce using one of four authentication methods:
 4. Save the Client ID and Client Secret
 5. **Important**: Note your instance URL (e.g., `https://your-domain.my.salesforce.com`) as it's required for authentication
 
-#### 3. OAuth 2.0 Web Server Flow (Browser-based with SSO Support)
+#### 3. OAuth 2.0 Authorization Code Flow (Browser-based with SSO Support)
 **Recommended for Okta and other SSO providers**
 
 1. Create a Connected App in Salesforce:
@@ -260,7 +260,7 @@ Add to your `claude_desktop_config.json`:
 
 > **Note**: For OAuth 2.0 Client Credentials Flow, the `SALESFORCE_INSTANCE_URL` must be your exact Salesforce instance URL (e.g., `https://your-domain.my.salesforce.com`). The token endpoint will be constructed as `<instance_url>/services/oauth2/token`.
 
-#### For OAuth 2.0 Web Server Flow (Browser-based with Okta SSO):
+#### For OAuth 2.0 Authorization Code Flow (Browser-based with Okta SSO):
 ```json
 {
   "mcpServers": {
@@ -268,7 +268,7 @@ Add to your `claude_desktop_config.json`:
       "command": "npx",
       "args": ["-y", "@tsmztech/mcp-server-salesforce"],
       "env": {
-        "SALESFORCE_CONNECTION_TYPE": "OAuth_2.0_Web_Server",
+        "SALESFORCE_CONNECTION_TYPE": "OAuth_2.0_Authorization_Code",
         "SALESFORCE_CLIENT_ID": "your_connected_app_client_id",
         "SALESFORCE_CLIENT_SECRET": "your_connected_app_client_secret",
         "SALESFORCE_INSTANCE_URL": "https://your-domain.my.salesforce.com",  // Your Salesforce instance URL
@@ -280,7 +280,7 @@ Add to your `claude_desktop_config.json`:
 ```
 
 > **Note**:
-> - For OAuth 2.0 Web Server Flow, the server will automatically open your browser for authentication
+> - For OAuth 2.0 Authorization Code Flow, the server will automatically open your browser for authentication
 > - If your org uses Okta SSO, you'll be redirected to Okta's login page
 > - Tokens are stored in `~/.mcp-salesforce/oauth-tokens.json` and automatically refreshed
 > - Make sure the redirect URI matches what you configured in your Connected App
@@ -288,7 +288,7 @@ Add to your `claude_desktop_config.json`:
 
 ### OAuth Token Management
 
-When using OAuth 2.0 Web Server Flow, tokens are stored locally for convenience:
+When using OAuth 2.0 Authorization Code Flow, tokens are stored locally for convenience:
 
 **Token Storage Location**: `~/.mcp-salesforce/oauth-tokens.json`
 
