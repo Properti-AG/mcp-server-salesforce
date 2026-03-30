@@ -23,10 +23,31 @@ export function generateAuthorizationUrl(
   if (state) {
     authUrl.searchParams.set('state', state);
   }
+  // Request refresh_token scope so Salesforce returns a refresh token
+  authUrl.searchParams.set('scope', 'api refresh_token offline_access');
   // Request offline access to get refresh token
   authUrl.searchParams.set('prompt', 'login consent');
-  
+
   return authUrl.toString();
+}
+
+/**
+ * Check if the access token is expired based on issued_at timestamp.
+ * Salesforce access tokens are typically valid for 2 hours (7200 seconds).
+ * We use a 5-minute buffer to avoid using a token that is about to expire.
+ */
+export function isAccessTokenExpired(tokens: OAuthTokens, sessionTimeoutSeconds = 7200): boolean {
+  if (!tokens.issued_at) {
+    // No issued_at — assume expired to force a refresh
+    return true;
+  }
+  const issuedAtMs = parseInt(tokens.issued_at, 10);
+  if (isNaN(issuedAtMs)) {
+    return true;
+  }
+  const bufferMs = 5 * 60 * 1000; // 5 minutes
+  const expiresAtMs = issuedAtMs + sessionTimeoutSeconds * 1000 - bufferMs;
+  return Date.now() >= expiresAtMs;
 }
 
 /**
