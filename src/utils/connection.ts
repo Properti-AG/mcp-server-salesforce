@@ -10,7 +10,8 @@ import {
   refreshAccessToken,
   startCallbackServer,
   loadTokens,
-  saveTokens
+  saveTokens,
+  isAccessTokenExpired
 } from './oauth.js';
 
 const execAsync = promisify(exec);
@@ -175,16 +176,25 @@ export async function createSalesforceConnection(config?: ConnectionConfig) {
       // Try to load existing tokens
       let tokens = loadTokens();
 
-      // If we have a refresh token, try to refresh the access token
-      if (tokens && tokens.refresh_token) {
-        try {
-          console.error('Attempting to refresh access token...');
-          tokens = await refreshAccessToken(loginUrl, clientId, clientSecret, tokens.refresh_token);
-          saveTokens(tokens);
-          console.error('Access token refreshed successfully');
-        } catch (error) {
-          console.error('Failed to refresh token, will re-authenticate:', error);
-          tokens = null;
+      if (tokens) {
+        if (isAccessTokenExpired(tokens)) {
+          console.error('Access token is expired.');
+          if (tokens.refresh_token) {
+            try {
+              console.error('Attempting to refresh access token...');
+              tokens = await refreshAccessToken(loginUrl, clientId, clientSecret, tokens.refresh_token);
+              saveTokens(tokens);
+              console.error('Access token refreshed successfully');
+            } catch (error) {
+              console.error('Failed to refresh token, will re-authenticate:', error);
+              tokens = null;
+            }
+          } else {
+            console.error('No refresh token available, will re-authenticate.');
+            tokens = null;
+          }
+        } else {
+          console.error('Access token is still valid, reusing.');
         }
       }
 
