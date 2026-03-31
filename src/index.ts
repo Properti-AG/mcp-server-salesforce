@@ -29,6 +29,19 @@ import { MANAGE_DEBUG_LOGS, handleManageDebugLogs, ManageDebugLogsArgs } from ".
 // MCP servers require stdout to contain ONLY JSON-RPC messages
 dotenv.config();
 
+const ALLOW_WRITES = process.env.SALESFORCE_ALLOW_WRITE === 'true';
+
+const WRITE_TOOLS = new Set([
+  'salesforce_dml_records',
+  'salesforce_manage_object',
+  'salesforce_manage_field',
+  'salesforce_manage_field_permissions',
+  'salesforce_write_apex',
+  'salesforce_write_apex_trigger',
+  'salesforce_execute_anonymous',
+  'salesforce_manage_debug_logs',
+]);
+
 const server = new Server(
   {
     name: "salesforce-mcp-server",
@@ -41,31 +54,45 @@ const server = new Server(
   },
 );
 
+const READ_TOOL_DEFINITIONS = [
+  SEARCH_OBJECTS,
+  DESCRIBE_OBJECT,
+  QUERY_RECORDS,
+  AGGREGATE_QUERY,
+  SEARCH_ALL,
+  READ_APEX,
+  READ_APEX_TRIGGER,
+];
+
+const WRITE_TOOL_DEFINITIONS = [
+  DML_RECORDS,
+  MANAGE_OBJECT,
+  MANAGE_FIELD,
+  MANAGE_FIELD_PERMISSIONS,
+  WRITE_APEX,
+  WRITE_APEX_TRIGGER,
+  EXECUTE_ANONYMOUS,
+  MANAGE_DEBUG_LOGS,
+];
+
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [
-    SEARCH_OBJECTS, 
-    DESCRIBE_OBJECT, 
-    QUERY_RECORDS, 
-    AGGREGATE_QUERY,
-    DML_RECORDS,
-    MANAGE_OBJECT,
-    MANAGE_FIELD,
-    MANAGE_FIELD_PERMISSIONS,
-    SEARCH_ALL,
-    READ_APEX,
-    WRITE_APEX,
-    READ_APEX_TRIGGER,
-    WRITE_APEX_TRIGGER,
-    EXECUTE_ANONYMOUS,
-    MANAGE_DEBUG_LOGS
-  ],
+  tools: ALLOW_WRITES
+    ? [...READ_TOOL_DEFINITIONS, ...WRITE_TOOL_DEFINITIONS]
+    : READ_TOOL_DEFINITIONS,
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     const { name, arguments: args } = request.params;
     if (!args) throw new Error('Arguments are required');
+
+    if (!ALLOW_WRITES && WRITE_TOOLS.has(name)) {
+      return {
+        content: [{ type: "text", text: `Write operation '${name}' is not allowed. Set SALESFORCE_ALLOW_WRITE=true to enable write operations.` }],
+        isError: true,
+      };
+    }
 
     const conn = await createSalesforceConnection();
 
